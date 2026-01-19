@@ -1,0 +1,41 @@
+name: "GitLaunch Build Reporter"
+description: "Report builds and deployment status to GitLaunch for deployment management"
+author: "GitLaunch"
+branding:
+  icon: "upload-cloud"
+  color: "blue"
+
+inputs:
+  api-key:
+    description: "GitLaunch API key (use secrets.GITLAUNCH_API_KEY)"
+    required: true
+  api-url:
+    description: "GitLaunch API URL"
+    required: false
+    default: "https://gitlaunch.io"
+  service-id:
+    description: "GitLaunch service ID"
+    required: true
+  action:
+    description: "Action to perform: report-build, update-status"
+    required: true
+    default: "report-build"
+  build-id:
+    description: "Build identifier (commit SHA, build number, etc.)"
+    required: true
+  environment:
+    description: "Deployment environment (staging, prod) - required for update-status"
+    required: false
+  status:
+    description: "Deployment status (deploying, deployed, error, cancelled) - required for update-status"
+    required: false
+
+outputs:
+  build-id:
+    description: "The build ID that was reported"
+  deployment-status:
+    description: "The current deployment status"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
