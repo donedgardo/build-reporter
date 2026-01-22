@@ -45,7 +45,7 @@ jobs:
 
       # Report successful build to GitLaunch
       - name: Report build to GitLaunch
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -72,7 +72,7 @@ jobs:
 
       # Mark deployment as in progress
       - name: Mark deployment started
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -89,7 +89,7 @@ jobs:
       # Mark deployment as complete
       - name: Mark deployment complete
         if: success()
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -101,7 +101,7 @@ jobs:
       # Mark deployment as failed
       - name: Mark deployment failed
         if: failure()
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -146,7 +146,7 @@ jobs:
 
       - name: Report build
         id: report
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -161,7 +161,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Update status - deploying
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
@@ -174,7 +174,7 @@ jobs:
         run: ./deploy.sh staging
 
       - name: Update status - deployed
-        uses: donedgardo/build-reporter@v1
+        uses: donedgardo/build-reporter@v1.0.0
         with:
           api-key: ${{ secrets.GITLAUNCH_API_KEY }}
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
