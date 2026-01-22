@@ -18,7 +18,7 @@ interface ErrorResponse {
 async function run(): Promise<void> {
   try {
     const apiKey = core.getInput("api-key", { required: true });
-    const apiUrl = core.getInput("api-url") || "https://gitlaunch.io";
+    const apiUrl = core.getInput("api-url") || "https://gitlaunch.dev";
     const serviceId = core.getInput("service-id", { required: true });
     const action = core.getInput("action", { required: true }) as ActionType;
     const buildId = core.getInput("build-id", { required: true });

@@ -25687,7 +25687,7 @@ const http_client_1 = __nccwpck_require__(4844);
 async function run() {
     try {
         const apiKey = core.getInput("api-key", { required: true });
-        const apiUrl = core.getInput("api-url") || "https://gitlaunch.io";
+        const apiUrl = core.getInput("api-url") || "https://gitlaunch.dev";
         const serviceId = core.getInput("service-id", { required: true });
         const action = core.getInput("action", { required: true });
         const buildId = core.getInput("build-id", { required: true });

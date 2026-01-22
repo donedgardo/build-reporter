@@ -12,7 +12,7 @@ inputs:
   api-url:
     description: "GitLaunch API URL"
     required: false
-    default: "https://gitlaunch.io"
+    default: "https://gitlaunch.dev"
   service-id:
     description: "GitLaunch service ID"
     required: true
