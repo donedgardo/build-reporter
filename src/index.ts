@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import { HttpClient } from "@actions/http-client";
 
-type ActionType = "report-build" | "update-status";
+type ActionType = "report-build" | "update-status" | "deploy";
 
 interface BuildResponse {
   _id: string;
@@ -100,9 +100,46 @@ async function run(): Promise<void> {
         break;
       }
 
+      case "deploy": {
+        if (!environment) {
+          throw new Error("environment is required for deploy action");
+        }
+
+        core.info(
+          `Reporting deploying status for build ${buildId} in ${environment}...`,
+        );
+
+        core.saveState("api_key", apiKey);
+        core.saveState("api_url", apiUrl);
+        core.saveState("service_id", serviceId);
+        core.saveState("environment", environment);
+        core.saveState("build_id", buildId);
+
+        const response = await client.patchJson<BuildResponse | ErrorResponse>(
+          `${baseUrl}/builds/${buildId}/deploy/${environment}`,
+          { status: "deploying" },
+        );
+
+        if (response.statusCode === 200) {
+          const result = response.result as BuildResponse;
+          core.info(`Deploying status reported successfully`);
+          core.setOutput("build-id", result.buildId || buildId);
+          core.setOutput(
+            "deployment-status",
+            result.deployments?.[environment] || "deploying",
+          );
+        } else {
+          const error = response.result as ErrorResponse;
+          throw new Error(
+            error?.error || `Failed with status ${response.statusCode}`,
+          );
+        }
+        break;
+      }
+
       default:
         throw new Error(
-          `Invalid action: ${action}. Must be 'report-build' or 'update-status'`,
+          `Invalid action: ${action}. Must be 'report-build', 'update-status', or 'deploy'`,
         );
     }
   } catch (error) {

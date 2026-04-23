@@ -225,7 +225,7 @@ describe("GitLaunch Action", () => {
 
       // Then: error is set
       expect(mockSetFailed).toHaveBeenCalledWith(
-        "Invalid action: invalid-action. Must be 'report-build' or 'update-status'",
+        "Invalid action: invalid-action. Must be 'report-build', 'update-status', or 'deploy'",
       );
     });
   });
