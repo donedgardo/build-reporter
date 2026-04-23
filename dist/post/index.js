@@ -25643,7 +25643,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9407:
+/***/ 6661:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25686,94 +25686,46 @@ const core = __importStar(__nccwpck_require__(7484));
 const http_client_1 = __nccwpck_require__(4844);
 async function run() {
     try {
-        const apiKey = core.getInput("api-key", { required: true });
-        const apiUrl = core.getInput("api-url") || "https://gitlaunch.dev";
-        const serviceId = core.getInput("service-id", { required: true });
-        const action = core.getInput("action", { required: true });
-        const buildId = core.getInput("build-id", { required: true });
-        const environment = core.getInput("environment");
-        const status = core.getInput("status");
+        const apiKey = core.getState("api_key");
+        const apiUrl = core.getState("api_url");
+        const serviceId = core.getState("service_id");
+        const environment = core.getState("environment");
+        const buildId = core.getState("build_id");
+        // No state means main step didn't run in deploy mode — exit silently
+        if (!apiKey || !serviceId) {
+            return;
+        }
+        const jobStatus = (process.env.GITHUB_JOB_STATUS || "").toLowerCase();
+        let status;
+        switch (jobStatus) {
+            case "success":
+                status = "deployed";
+                break;
+            case "cancelled":
+                status = "cancelled";
+                break;
+            default:
+                status = "error";
+                break;
+        }
+        core.info(`Reporting final status '${status}' for build ${buildId} in ${environment}...`);
         const client = new http_client_1.HttpClient("gitlaunch-action", [], {
             headers: {
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
             },
         });
-        const baseUrl = `${apiUrl}/api/v1/services/${serviceId}`;
-        switch (action) {
-            case "report-build": {
-                core.info(`Reporting build ${buildId} to GitLaunch...`);
-                const response = await client.postJson(`${baseUrl}/builds`, { buildId });
-                if (response.statusCode === 201 || response.statusCode === 200) {
-                    const result = response.result;
-                    core.info(`Build ${buildId} reported successfully`);
-                    core.setOutput("build-id", result.buildId);
-                    core.setOutput("deployment-status", JSON.stringify(result.deployments));
-                }
-                else {
-                    const error = response.result;
-                    throw new Error(error?.error || `Failed with status ${response.statusCode}`);
-                }
-                break;
-            }
-            case "update-status": {
-                if (!environment) {
-                    throw new Error("environment is required for update-status action");
-                }
-                if (!status) {
-                    throw new Error("status is required for update-status action");
-                }
-                const validStatuses = ["deploying", "deployed", "error", "cancelled"];
-                if (!validStatuses.includes(status)) {
-                    throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(", ")}`);
-                }
-                core.info(`Updating deployment status for build ${buildId} in ${environment} to ${status}...`);
-                const response = await client.patchJson(`${baseUrl}/builds/${buildId}/deploy/${environment}`, { status });
-                if (response.statusCode === 200) {
-                    const result = response.result;
-                    core.info(`Deployment status updated successfully`);
-                    core.setOutput("build-id", result.buildId);
-                    core.setOutput("deployment-status", result.deployments[environment] || status);
-                }
-                else {
-                    const error = response.result;
-                    throw new Error(error?.error || `Failed with status ${response.statusCode}`);
-                }
-                break;
-            }
-            case "deploy": {
-                if (!environment) {
-                    throw new Error("environment is required for deploy action");
-                }
-                core.info(`Reporting deploying status for build ${buildId} in ${environment}...`);
-                core.saveState("api_key", apiKey);
-                core.saveState("api_url", apiUrl);
-                core.saveState("service_id", serviceId);
-                core.saveState("environment", environment);
-                core.saveState("build_id", buildId);
-                const response = await client.patchJson(`${baseUrl}/builds/${buildId}/deploy/${environment}`, { status: "deploying" });
-                if (response.statusCode === 200) {
-                    const result = response.result;
-                    core.info(`Deploying status reported successfully`);
-                    core.setOutput("build-id", result.buildId || buildId);
-                    core.setOutput("deployment-status", result.deployments?.[environment] || "deploying");
-                }
-                else {
-                    const error = response.result;
-                    throw new Error(error?.error || `Failed with status ${response.statusCode}`);
-                }
-                break;
-            }
-            default:
-                throw new Error(`Invalid action: ${action}. Must be 'report-build', 'update-status', or 'deploy'`);
-        }
+        const url = `${apiUrl}/api/v1/services/${serviceId}/builds/${buildId}/deploy/${environment}`;
+        await client.patchJson(url, { status });
+        core.info(`Final status '${status}' reported successfully`);
     }
     catch (error) {
+        // Use warning, not setFailed — don't fail the job in the post step
         if (error instanceof Error) {
-            core.setFailed(error.message);
+            core.warning(`GitLaunch post step failed: ${error.message}`);
         }
         else {
-            core.setFailed("An unexpected error occurred");
+            core.warning("GitLaunch post step failed: unexpected error");
         }
     }
 }
@@ -27697,7 +27649,7 @@ module.exports = parseParams
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(9407);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(6661);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
