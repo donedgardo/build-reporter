@@ -29,7 +29,9 @@ async function run(): Promise<void> {
         break;
     }
 
-    core.info(`Reporting final status '${status}' for build ${buildId} in ${environment}...`);
+    core.info(
+      `Reporting final status '${status}' for build ${buildId} in ${environment}...`,
+    );
 
     const client = new HttpClient("gitlaunch-action", [], {
       headers: {

@@ -293,7 +293,10 @@ describe("GitLaunch Action", () => {
       expect(mockSaveState).toHaveBeenCalledWith("service_id", "service123");
       expect(mockSaveState).toHaveBeenCalledWith("environment", "staging");
       expect(mockSaveState).toHaveBeenCalledWith("build_id", "abc123");
-      expect(mockSaveState).toHaveBeenCalledWith("api_url", "https://gitlaunch.io");
+      expect(mockSaveState).toHaveBeenCalledWith(
+        "api_url",
+        "https://gitlaunch.io",
+      );
     });
   });
 });
