@@ -25684,6 +25684,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const http_client_1 = __nccwpck_require__(4844);
+const reporterCore_1 = __nccwpck_require__(8533);
 async function run() {
     try {
         const apiKey = core.getState("api_key");
@@ -25695,19 +25696,7 @@ async function run() {
         if (!apiKey || !serviceId) {
             return;
         }
-        const jobStatus = (process.env.GITHUB_JOB_STATUS || "").toLowerCase();
-        let status;
-        switch (jobStatus) {
-            case "success":
-                status = "deployed";
-                break;
-            case "cancelled":
-                status = "cancelled";
-                break;
-            default:
-                status = "error";
-                break;
-        }
+        const status = (0, reporterCore_1.jobStatusToDeploymentStatus)(process.env.GITHUB_JOB_STATUS || "");
         core.info(`Reporting final status '${status}' for build ${buildId} in ${environment}...`);
         const client = new http_client_1.HttpClient("gitlaunch-action", [], {
             headers: {
@@ -25730,6 +25719,41 @@ async function run() {
     }
 }
 run();
+
+
+/***/ }),
+
+/***/ 8533:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.REPORTER_STATUSES = void 0;
+exports.jobStatusToDeploymentStatus = jobStatusToDeploymentStatus;
+const reporter_contract_golden_json_1 = __importDefault(__nccwpck_require__(4541));
+/**
+ * Provider-neutral status core, driven by the vendored golden vector that is
+ * pinned byte-identical to the GitLaunch server's copy (see the drift contract
+ * test in the main repo). The reporter no longer owns any status logic of its
+ * own — this is PROV-03's "thin wrapper over the provider-neutral reporter".
+ */
+// A GitHub job status ("success" | "failure" | "cancelled" | "") maps to a CI
+// outcome. Anything that is not success/cancelled is treated as a failure —
+// identical to the reporter's previous inline switch default.
+function jobStatusToDeploymentStatus(jobStatus) {
+    const normalized = jobStatus.toLowerCase();
+    const outcome = normalized === "success"
+        ? "success"
+        : normalized === "cancelled"
+            ? "cancelled"
+            : "failure";
+    return reporter_contract_golden_json_1.default.outcomeToStatus[outcome];
+}
+exports.REPORTER_STATUSES = reporter_contract_golden_json_1.default.reporterStatuses;
 
 
 /***/ }),
@@ -27604,6 +27628,14 @@ function parseParams (str) {
 
 module.exports = parseParams
 
+
+/***/ }),
+
+/***/ 4541:
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"contractVersion":1,"outcomeToStatus":{"success":"deployed","failure":"error","cancelled":"cancelled"},"statusVocabulary":["dispatching","deploying","error","cancelled","deployed","none"],"reporterStatuses":["deploying","deployed","error","cancelled"],"endpoints":{"reportBuild":{"method":"POST","path":"/api/v1/services/{serviceId}/builds"},"updateDeploymentStatus":{"method":"PATCH","path":"/api/v1/services/{serviceId}/builds/{buildId}/deploy/{environment}"}}}');
 
 /***/ })
 

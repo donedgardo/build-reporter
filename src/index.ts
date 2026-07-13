@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import { HttpClient } from "@actions/http-client";
+import { REPORTER_STATUSES } from "./reporterCore";
 
 type ActionType = "report-build" | "update-status" | "deploy";
 
@@ -67,10 +68,9 @@ async function run(): Promise<void> {
           throw new Error("status is required for update-status action");
         }
 
-        const validStatuses = ["deploying", "deployed", "error", "cancelled"];
-        if (!validStatuses.includes(status)) {
+        if (!REPORTER_STATUSES.includes(status)) {
           throw new Error(
-            `Invalid status: ${status}. Must be one of: ${validStatuses.join(", ")}`,
+            `Invalid status: ${status}. Must be one of: ${REPORTER_STATUSES.join(", ")}`,
           );
         }
 

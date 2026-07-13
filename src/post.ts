@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import { HttpClient } from "@actions/http-client";
+import { jobStatusToDeploymentStatus } from "./reporterCore";
 
 async function run(): Promise<void> {
   try {
@@ -14,20 +15,9 @@ async function run(): Promise<void> {
       return;
     }
 
-    const jobStatus = (process.env.GITHUB_JOB_STATUS || "").toLowerCase();
-
-    let status: string;
-    switch (jobStatus) {
-      case "success":
-        status = "deployed";
-        break;
-      case "cancelled":
-        status = "cancelled";
-        break;
-      default:
-        status = "error";
-        break;
-    }
+    const status = jobStatusToDeploymentStatus(
+      process.env.GITHUB_JOB_STATUS || "",
+    );
 
     core.info(
       `Reporting final status '${status}' for build ${buildId} in ${environment}...`,

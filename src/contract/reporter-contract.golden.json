@@ -1,0 +1,27 @@
+{
+  "contractVersion": 1,
+  "outcomeToStatus": {
+    "success": "deployed",
+    "failure": "error",
+    "cancelled": "cancelled"
+  },
+  "statusVocabulary": [
+    "dispatching",
+    "deploying",
+    "error",
+    "cancelled",
+    "deployed",
+    "none"
+  ],
+  "reporterStatuses": ["deploying", "deployed", "error", "cancelled"],
+  "endpoints": {
+    "reportBuild": {
+      "method": "POST",
+      "path": "/api/v1/services/{serviceId}/builds"
+    },
+    "updateDeploymentStatus": {
+      "method": "PATCH",
+      "path": "/api/v1/services/{serviceId}/builds/{buildId}/deploy/{environment}"
+    }
+  }
+}
