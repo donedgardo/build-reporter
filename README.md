@@ -1,5 +1,27 @@
 # GitLaunch Build Reporter
 
+> ⚠️ **Deprecated.** GitLaunch now recommends reporting builds and deployment
+> status with plain `curl` calls to the reporting API instead of this action —
+> fewer moving parts and nothing to keep in sync with the API. The snippets are
+> shown right in your GitLaunch service settings. This action still works (the
+> API is unchanged), but is no longer maintained.
+>
+> Replace a build report with:
+>
+> ```yaml
+> - name: Report build to GitLaunch
+>   if: github.ref == 'refs/heads/main'
+>   run: |
+>     curl --fail-with-body -sS -X POST \
+>       "https://gitlaunch.dev/api/v1/services/${{ vars.GITLAUNCH_SERVICE_ID }}/builds" \
+>       -H "Authorization: Bearer ${{ secrets.GITLAUNCH_API_KEY }}" \
+>       -H "Content-Type: application/json" \
+>       -d '{"buildId":"${{ github.sha }}"}'
+> ```
+>
+> Report deploy status the same way — `PATCH /api/v1/services/<id>/builds/<sha>/deploy/<env>`
+> with `{"status":"deploying|deployed|error|cancelled"}`.
+
 A GitHub Action to report builds and deployment status to [GitLaunch](https://gitlaunch.dev) for deployment management.
 
 ## Features
