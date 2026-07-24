@@ -23,6 +23,7 @@ async function run(): Promise<void> {
     const serviceId = core.getInput("service-id", { required: true });
     const action = core.getInput("action", { required: true }) as ActionType;
     const buildId = core.getInput("build-id", { required: true });
+    const message = core.getInput("message");
     const environment = core.getInput("environment");
     const status = core.getInput("status");
 
@@ -40,7 +41,9 @@ async function run(): Promise<void> {
         core.info(`Reporting build ${buildId} to GitLaunch...`);
         const response = await client.postJson<BuildResponse | ErrorResponse>(
           `${baseUrl}/builds`,
-          { buildId },
+          // Only send the commit message when one was provided, so the body
+          // stays `{ buildId }` for callers that don't set it.
+          message ? { buildId, message } : { buildId },
         );
 
         if (response.statusCode === 201 || response.statusCode === 200) {
