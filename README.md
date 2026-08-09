@@ -253,4 +253,7 @@ To publish this action to the GitHub Marketplace:
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
+
+The GitLaunch server this reporter talks to is licensed separately, under the
+Functional Source License. This action stays MIT so it can run in any pipeline.
