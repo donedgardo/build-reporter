@@ -11,12 +11,14 @@
 > ```yaml
 > - name: Report build to GitLaunch
 >   if: github.ref == 'refs/heads/main'
+>   env:
+>     GITLAUNCH_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 >   run: |
 >     curl --fail-with-body -sS -X POST \
 >       "https://gitlaunch.dev/api/v1/services/${{ vars.GITLAUNCH_SERVICE_ID }}/builds" \
 >       -H "Authorization: Bearer ${{ secrets.GITLAUNCH_API_KEY }}" \
 >       -H "Content-Type: application/json" \
->       -d '{"buildId":"${{ github.sha }}"}'
+>       -d "$(jq -nc --arg buildId "${{ github.sha }}" --arg message "$GITLAUNCH_COMMIT_MESSAGE" '{buildId:$buildId,message:$message}')"
 > ```
 >
 > Report deploy status the same way — `PATCH /api/v1/services/<id>/builds/<sha>/deploy/<env>`
@@ -73,6 +75,7 @@ jobs:
           service-id: ${{ vars.GITLAUNCH_SERVICE_ID }}
           action: report-build
           build-id: ${{ github.sha }}
+          message: ${{ github.event.head_commit.message }}
 ```
 
 ### Update Deployment Status
@@ -215,6 +218,7 @@ jobs:
 | `service-id`  | GitLaunch service ID                                 | Yes                 | -                       |
 | `action`      | Action to perform: `report-build` or `update-status` | Yes                 | `report-build`          |
 | `build-id`    | Build identifier (commit SHA, build number, etc.)    | Yes                 | -                       |
+| `message`     | Commit message, shown next to the SHA on the dashboard | No                | -                       |
 | `environment` | Deployment environment (staging, prod)               | For `update-status` | -                       |
 | `status`      | Deployment status                                    | For `update-status` | -                       |
 

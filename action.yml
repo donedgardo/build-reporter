@@ -23,6 +23,9 @@ inputs:
   build-id:
     description: "Build identifier (commit SHA, build number, etc.)"
     required: true
+  message:
+    description: "Commit message for the build, shown next to the SHA on the GitLaunch dashboard (e.g. github.event.head_commit.message)"
+    required: false
   environment:
     description: "Deployment environment (staging, prod) - required for update-status"
     required: false

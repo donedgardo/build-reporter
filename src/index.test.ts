@@ -76,6 +76,78 @@ describe("GitLaunch Action", () => {
       expect(mockSetFailed).not.toHaveBeenCalled();
     });
 
+    it("should include the commit message when one is provided", async () => {
+      // Given: report-build inputs that include a commit message
+      mockGetInput.mockImplementation((name: string) => {
+        const inputs: Record<string, string> = {
+          "api-key": "pk_test_key",
+          "api-url": "https://gitlaunch.io",
+          "service-id": "service123",
+          action: "report-build",
+          "build-id": "abc123",
+          message: "Fix session cookie expiry",
+        };
+        return inputs[name] || "";
+      });
+
+      mockPostJson.mockResolvedValue({
+        statusCode: 201,
+        result: {
+          _id: "build-id-123",
+          buildId: "abc123",
+          deployments: {},
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      });
+
+      // When: action runs
+      await import("./index");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Then: the message travels in the build report body
+      expect(mockPostJson).toHaveBeenCalledWith(
+        "https://gitlaunch.io/api/v1/services/service123/builds",
+        { buildId: "abc123", message: "Fix session cookie expiry" },
+      );
+      expect(mockSetFailed).not.toHaveBeenCalled();
+    });
+
+    it("should omit the message from the body when none is provided", async () => {
+      // Given: report-build inputs with no message
+      mockGetInput.mockImplementation((name: string) => {
+        const inputs: Record<string, string> = {
+          "api-key": "pk_test_key",
+          "api-url": "https://gitlaunch.io",
+          "service-id": "service123",
+          action: "report-build",
+          "build-id": "abc123",
+        };
+        return inputs[name] || "";
+      });
+
+      mockPostJson.mockResolvedValue({
+        statusCode: 201,
+        result: {
+          _id: "build-id-123",
+          buildId: "abc123",
+          deployments: {},
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      });
+
+      // When: action runs
+      await import("./index");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Then: the body carries just the buildId (no empty message key)
+      expect(mockPostJson).toHaveBeenCalledWith(
+        "https://gitlaunch.io/api/v1/services/service123/builds",
+        { buildId: "abc123" },
+      );
+    });
+
     it("should handle API errors", async () => {
       // Given: valid inputs but API returns error
       mockGetInput.mockImplementation((name: string) => {
