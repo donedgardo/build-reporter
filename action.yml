@@ -1,5 +1,5 @@
 name: "GitLaunch Build Reporter"
-description: "Report builds and deployment status to GitLaunch for deployment management"
+description: "DEPRECATED - report builds to GitLaunch with plain curl instead; see the README. Still works, no longer maintained."
 author: "GitLaunch"
 branding:
   icon: "upload-cloud"
